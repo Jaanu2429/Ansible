@@ -1,0 +1,25 @@
+---
+- name: Check RAM and Disk Space Usage
+  hosts: servers
+  become: true
+  tasks:
+
+    - name: Gather system facts
+      ansible.builtin.setup:
+
+    - name: Check memory usage (using free command)
+      command: free -m
+      register: memory_info
+
+    - name: Display memory usage
+      debug:
+        msg: "Total RAM: {{ memory_info.stdout_lines[1].split()[1] }} MB, Used RAM: {{ memory_info.stdout_lines[1].split()[2] }} MB, Free RAM: {{ memory_info.stdout_lines[1].split()[3] }} MB"
+
+    - name: Check disk usage (using df command)
+      command: df -h /
+      register: disk_info
+      changed_when: false
+
+    - name: Display disk usage
+      debug:
+        var: disk_info.stdout
