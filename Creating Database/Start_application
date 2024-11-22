@@ -1,0 +1,29 @@
+---
+- name: Start the Flask and MySQL two-tier application
+  hosts: servers
+  become: true
+  vars:
+    repo_url: "https://github.com/govi123govi/two-tier-application-project.git"
+    app_directory: "/home/ubuntu/two-tier-application-project"
+    docker_compose_file: "docker-compose.yml"
+
+  tasks:
+    - name: Clone the application repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_directory }}"
+        update: yes
+
+    - name: Start the application with Docker Compose
+      shell: |
+        docker-compose -f {{ app_directory }}/{{ docker_compose_file }} up -d
+      args:
+        chdir: "{{ app_directory }}"
+
+    - name: Verify Docker containers are running
+      shell: docker ps
+      register: docker_ps_output
+
+    - name: Display Docker containers running status
+      debug:
+        var: docker_ps_output.stdout
