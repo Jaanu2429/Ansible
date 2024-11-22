@@ -1,0 +1,14 @@
+---
+- name: Stop and remove NGINX container
+  hosts: servers
+  become: true
+  tasks:
+    - name: Stop NGINX container
+      docker_container:
+        name: nginx_container
+        state: stopped
+
+    - name: Remove NGINX container
+      docker_container:
+        name: nginx_container
+        state: absent
