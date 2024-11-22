@@ -1,36 +1,23 @@
 ---
-- name: Install Docker on servers
+- name: Deploy NGINX container on servers
   hosts: servers
   become: true
   tasks:
-    - name: Update and install prerequisites
-      apt:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - apt-transport-https
-        - ca-certificates
-        - curl
-        - software-properties-common
-
-    - name: Add Docker GPG key
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-
-    - name: Add Docker repository
-      apt_repository:
-        repo: deb https://download.docker.com/linux/ubuntu focal stable
-        state: present
-        update_cache: yes
-
-    - name: Install Docker
+    - name: Ensure Docker is installed
       apt:
         name: docker-ce
         state: present
+      tags: docker
 
-    - name: Start and enable Docker service
-      systemd:
-        name: docker
-        enabled: true
+    - name: Pull NGINX image
+      docker_image:
+        name: nginx
+        source: pull
+
+    - name: Run NGINX container
+      docker_container:
+        name: nginx_container
+        image: nginx
         state: started
+        ports:
+          - "80:80"
